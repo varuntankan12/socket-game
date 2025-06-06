@@ -110,6 +110,29 @@ function GameCanvas() {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
+        socket.on('init', ({ id, players, particles }) => {
+            setMyId(id);
+            setPlayers(players);
+            setParticles(particles);
+        });
+
+        socket.on('new-player', (player) => {
+            setPlayers((prev) => ({ ...prev, [player.id]: player }));
+        });
+
+        socket.on('remove-player', (id) => {
+            setPlayers((prev) => {
+                const newState = { ...prev };
+                delete newState[id];
+                return newState;
+            });
+        });
+
+        socket.on('game-state', ({ players, particles }) => {
+            setPlayers(players);
+            setParticles(particles);
+        });
+
         const handleKeyDown = (e) => {
             if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 const direction = e.key.replace('Arrow', '').toLowerCase();
@@ -149,31 +172,6 @@ function GameCanvas() {
         };
     }, [particles, players, myId]);
 
-    useEffect(() => {
-        socket.on('init', ({ id, players, particles }) => {
-            setMyId(id);
-            setPlayers(players);
-            setParticles(particles);
-        });
-
-        socket.on('new-player', (player) => {
-            setPlayers((prev) => ({ ...prev, [player.id]: player }));
-        });
-
-        socket.on('remove-player', (id) => {
-            setPlayers((prev) => {
-                const newState = { ...prev };
-                delete newState[id];
-                return newState;
-            });
-        });
-
-        socket.on('game-state', ({ players, particles }) => {
-            setPlayers(players);
-            setParticles(particles);
-        });
-
-    }, []);
 
 
     return (
